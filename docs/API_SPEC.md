@@ -292,6 +292,22 @@ Tool 使用 MCP annotation 标记风险级别和属性：
 }
 ```
 
+## Resources as Tools（Quick 兼容）
+
+由于 Amazon Quick 目前不消费 MCP Resources，bridge 同时将 Resources 以等价 tool 形式暴露，供 Agent 直接调用：
+
+| Tool 名称 | 描述 | 返回值 |
+|---|---|---|
+| `lark.identity` | 查看当前飞书登录身份（用户/机器人）、状态、open_id 等信息 | 同 `lark://identity` Resource |
+| `lark.permissions` | 查看当前飞书应用已授权的 scope 列表。用于判断哪些操作可执行 | 同 `lark://permissions` Resource |
+| `lark.domains` | 查看所有可用的飞书域及各域 tool 数量概览 | 同 `lark://domains` Resource |
+
+这三个 tool 无需参数，直接调用即可。返回格式与对应 Resource 完全一致。
+
+> **设计说明**：MCP Resources 注册保留以备未来兼容。当 Quick 支持 Resources 消费后，Agent 可通过任一方式获取相同信息。
+
+---
+
 ## MCP Resources
 
 bridge 通过 MCP Resources 暴露只读上下文信息：

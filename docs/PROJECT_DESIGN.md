@@ -284,6 +284,10 @@ MCP Resources 暴露只读上下文信息，帮助 Agent 感知当前环境：
 - 接受可选 `settings: BridgeSettings` 参数，便于测试注入
 - `get_domains_summary()` 内部复用 `discovery.discover_tools()` + `get_tools_by_domain()`
 
+**Resources as Tools（Quick 兼容）**：
+
+由于 Amazon Quick 目前不消费 MCP Resources primitive，bridge 同时将三个 Resource 注册为等价的 MCP tool（`lark.identity`、`lark.permissions`、`lark.domains`），供 Agent 直接调用。两种方式返回相同数据，MCP Resources 注册保留以备未来兼容。
+
 ### 2.6 Identity（身份）处理
 
 lark-cli 有 `--as user`（用户身份）和 `--as bot`（应用身份）两种模式。bridge 需要透传此概念：

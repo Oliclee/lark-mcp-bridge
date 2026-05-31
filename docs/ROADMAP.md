@@ -2,52 +2,52 @@
 
 > 文档索引见 [INDEX.md](./INDEX.md)
 
-## Phase 0: 项目初始化
+## Phase 0: 项目初始化 ✅
 
 **目标**：代码仓库和生产工程就绪
 
-- [ ] GitHub 仓库创建
-- [ ] `pyproject.toml` + conda env 配置
-- [ ] `src/lark_mcp_bridge/` 基础骨架
-- [ ] `pytest` 测试框架搭建
-- [ ] `config.py` 统一配置模型（pydantic-settings）
+- [x] GitHub 仓库创建
+- [x] `pyproject.toml` + conda env 配置
+- [x] `src/lark_mcp_bridge/` 基础骨架
+- [x] `pytest` 测试框架搭建
+- [x] `config.py` 统一配置模型（pydantic-settings）
 
-## Phase 1: MVP（固定 tool）
+## Phase 1: MVP（固定 tool）✅
 
 **目标**：最小可用，验证架构可行性
 
-- [ ] 5 个固定 MCP tool 手动注册
+- [x] 5 个固定 MCP tool 手动注册
   - `lark.im.messages-send` — 发送消息（支持 chat_id/user_id 二选一，text/markdown 二选一）
   - `lark.calendar.agenda` — 查看日程
   - `lark.base.record-search` — 搜索多维表格记录（支持字段过滤和分页）
   - `lark.docs.fetch` — 读取文档（支持 URL 或 token）
   - `lark.contact.search-user` — 搜索联系人（支持分页）
-- [ ] FastMCP HTTP streaming transport
-- [ ] 基础 subprocess 执行器 + 超时控制
-- [ ] 在 Amazon Quick 中成功调用并返回结果
-- [ ] 基础结构化错误处理（参见 [API_SPEC](./API_SPEC.md#结构化错误分类)）
+- [x] FastMCP stdio transport
+- [x] 基础 subprocess 执行器 + 超时控制
+- [x] 在 Amazon Quick 中成功调用并返回结果
+- [x] 基础结构化错误处理（含业务层 ok:false 检测）
 
-## Phase 1.5: 端到端验证 🆕
+## Phase 1.5: 端到端验证 ✅
 
 **目标**：验证四层架构有效性，建立 Agent 使用成功率 baseline
 
-- [ ] 编写 1 个 composite tool（`lark.calendar.schedule-meeting`）
-- [ ] 编写 1 个 Prompt（`lark-calendar-workflow`）
-- [ ] 端到端测试：Agent 完成"查日程→找联系人→发消息"完整流程
+- [x] 编写 1 个 composite tool（`lark.calendar.schedule-meeting`）
+- [x] 编写 1 个 Prompt（`lark-calendar-workflow`）
+- [x] 端到端测试：Agent 完成"查日程→找联系人→预约会议"完整流程
 - [ ] 记录 Agent 调用成功率、平均 tool call 次数
 - [ ] 验证 Prompt 引导是否有效减少 Agent 试错
 
-## Phase 2: 动态发现
+## Phase 2: 动态发现 ✅
 
 **目标**：自动跟随 lark-cli 版本，无需手动维护 tool 列表
 
-- [ ] `discovery.py`：解析 lark-cli 内建命令元数据
-- [ ] 动态注册所有 command 为 MCP tool
-- [ ] `filters.py`：白名单优先机制（参见 [SECURITY](./SECURITY.md)）
-- [ ] 参数类型自动映射
-- [ ] `cache.py`：Discovery 结果缓存至本地 JSON
-- [ ] `lark.discover` meta-tool 实现（渐进式暴露）
-- [ ] `resources.py`：MCP Resources 层（identity / permissions / domains）
+- [x] `discovery.py`：解析 lark-cli schema --format json（219 个 tool）
+- [x] ToolDefinition 数据模型（name、risk_level、identity、scopes）
+- [x] `filters.py`：白名单优先机制，扩展至 16 个域
+- [x] 参数类型自动映射（inputSchema 清理 + yes 字段移除）
+- [x] Discovery 结果缓存至本地 JSON
+- [x] `lark.discover` meta-tool 实现（渐进式暴露，按域查询）
+- [x] `resources.py`：MCP Resources 层 + 等价 tool（identity / permissions / domains）
 
 ## Phase 2.5: 性能基准 🆕
 
