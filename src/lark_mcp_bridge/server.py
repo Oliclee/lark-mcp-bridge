@@ -512,6 +512,119 @@ def mail_list(
     return _format_result(result)
 
 
+# === Phase 5.1 P1: drive / wiki shortcut tools ===
+
+
+@mcp.tool(
+    name="lark.drive.upload",
+    description="上传本地文件到云空间。支持指定目标文件夹或知识库节点。[user/bot 身份均可]",
+)
+def drive_upload(
+    file: str,
+    folder_token: str | None = None,
+    wiki_token: str | None = None,
+    name: str | None = None,
+) -> str:
+    """上传文件到飞书云空间。
+
+    Args:
+        file: 本地文件路径（相对路径，大于 20MB 自动分片上传）
+        folder_token: 目标文件夹 token（与 wiki_token 互斥，不指定则上传到根目录）
+        wiki_token: 目标知识库节点 token（与 folder_token 互斥）
+        name: 上传后的文件名（默认使用本地文件名）
+    """
+    blocked = _check_permission("lark.drive.upload")
+    if blocked:
+        return blocked
+
+    command = ["drive", "+upload", "--file", file]
+    if folder_token:
+        command.extend(["--folder-token", folder_token])
+    elif wiki_token:
+        command.extend(["--wiki-token", wiki_token])
+    if name:
+        command.extend(["--name", name])
+
+    result = execute(command)
+    return _format_result(result)
+
+
+@mcp.tool(
+    name="lark.drive.download",
+    description="从云空间下载文件到本地。[user/bot 身份均可]",
+)
+def drive_download(
+    file_token: str,
+    output: str | None = None,
+) -> str:
+    """下载云空间文件。
+
+    Args:
+        file_token: 文件 token
+        output: 本地保存路径（不指定则保存到当前目录）
+    """
+    blocked = _check_permission("lark.drive.download")
+    if blocked:
+        return blocked
+
+    command = ["drive", "+download", "--file-token", file_token]
+    if output:
+        command.extend(["--output", output])
+
+    result = execute(command)
+    return _format_result(result)
+
+
+@mcp.tool(
+    name="lark.wiki.search",
+    description="搜索飞书文档、知识库和电子表格。支持按类型、时间、创建者等过滤。[需要 user 身份]",
+)
+def wiki_search(
+    query: str,
+    doc_types: str | None = None,
+    page_size: int = 15,
+) -> str:
+    """搜索飞书文档和知识库。
+
+    Args:
+        query: 搜索关键词
+        doc_types: 文档类型过滤（逗号分隔：doc,sheet,bitable,mindnote,file,wiki,docx,folder,slides）
+        page_size: 每页数量，1-20，默认 15
+    """
+    blocked = _check_permission("lark.wiki.search")
+    if blocked:
+        return blocked
+
+    command = ["drive", "+search", "--query", query, "--format", "json", "--page-size", str(page_size)]
+    if doc_types:
+        command.extend(["--doc-types", doc_types])
+
+    result = execute(command)
+    return _format_result(result)
+
+
+@mcp.tool(
+    name="lark.wiki.get-node",
+    description="获取知识库节点详情。支持通过 node_token、obj_token 或飞书 URL 查询。[user/bot 身份均可]",
+)
+def wiki_get_node(
+    node_token: str,
+) -> str:
+    """获取知识库节点详情。
+
+    Args:
+        node_token: 知识库节点 token（wikcnXXX）、文档 token（docxXXX）或飞书 URL
+    """
+    blocked = _check_permission("lark.wiki.get-node")
+    if blocked:
+        return blocked
+
+    command = ["wiki", "+node-get", "--node-token", node_token, "--format", "json"]
+
+    result = execute(command)
+    return _format_result(result)
+
+
 # === Phase 2: 动态发现 + lark.discover meta-tool ===
 
 # 启动时加载所有 tool 定义（用于 discover 查询）
