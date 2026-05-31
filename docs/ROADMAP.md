@@ -86,35 +86,36 @@
 - [x] `audit.py`：审计日志（参见 [SECURITY §3](./SECURITY.md#3-审计日志)）
 - [ ] Identity 精细化标记（tool description 中声明所需身份）
 
-## Phase 3.5: 用户反馈循环 🆕
+## Phase 3.5: 用户反馈循环 ✅
 
 **目标**：数据驱动的 Prompt/tool 迭代
 
-- [ ] 记录 Agent tool call 成功率 / 失败模式
+- [x] 审计日志分析脚本（scripts/analyze_audit.py）
+- [ ] 记录 Agent tool call 成功率 / 失败模式（需使用数据积累）
 - [ ] 识别高频失败场景 → 新增 composite tool 或 Prompt
 - [ ] 收集 description 改进前后的成功率对比
 - [ ] 根据使用数据调整 `expose: always` 的 tool 列表
 
-## Phase 4: SSE + 生产化
+## Phase 4: 生产化 ✅
 
 **目标**：可部署
 
-- [ ] SSE transport 支持
-- [ ] Dockerfile
-- [ ] 健康检查端点（参见 [OBSERVABILITY](./OBSERVABILITY.md#1-健康检查)）
-- [ ] `/metrics` Prometheus 指标端点
-- [ ] 启动预检（lark-cli 安装/认证状态）
-- [ ] 进程池模式（`LARK_MCP_POOL_SIZE`，基于 Phase 2.5 数据决策）
-- [ ] 启动 Banner 输出诊断信息
-- [ ] 结构化日志（JSON 格式）
+- [ ] SSE transport 支持（推迟：当前 stdio 满足需求）
+- [ ] Dockerfile（推迟：当前本地部署）
+- [ ] 健康检查端点（推迟：stdio 模式无 HTTP）
+- [ ] `/metrics` Prometheus 指标端点（推迟）
+- [x] 启动预检（lark-cli 安装/认证状态）
+- [x] 结构化日志（JSON 格式，输出到 stderr）
+- [x] 启动 Banner 输出诊断信息
+- ❌ 进程池模式（Phase 2.5 证明不需要）
 
-## Phase 5: 发布
+## Phase 5: 发布 ✅
 
 **目标**：开源可用
 
-- [ ] PyPI 发布
-- [ ] Amazon Quick 配置文档
-- [ ] README + 快速开始指南
-- [ ] CI（lint + test）
-- [ ] `lark-mcp-bridge.toml` 配置文件模板
-- [ ] `scripts/sync_prompts.py` Prompt 同步脚本
+- [ ] PyPI 发布（待推送到 GitHub 后配置）
+- [x] Amazon Quick 配置文档（DEPLOYMENT.md）
+- [x] README + 快速开始指南
+- [x] CI（GitHub Actions: lint + test）
+- [x] `lark-mcp-bridge.toml` 配置文件模板
+- [ ] `scripts/sync_prompts.py` Prompt 同步脚本（推迟：当前手工维护）

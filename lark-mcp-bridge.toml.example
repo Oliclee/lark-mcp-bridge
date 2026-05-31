@@ -1,0 +1,42 @@
+# lark-mcp-bridge 配置文件模板
+# 复制为 lark-mcp-bridge.toml 并按需修改
+#
+# 配置查找顺序：
+# 1. --config 命令行参数指定路径
+# 2. 当前目录下的 lark-mcp-bridge.toml
+# 3. ~/.config/lark-mcp-bridge/config.toml
+
+[security]
+# 默认策略：deny = 仅允许白名单中的域，allow = 允许所有（不推荐）
+default_policy = "deny"
+
+[security.whitelist]
+# 按域允许（所有已知域）
+domains = [
+    "im",
+    "calendar",
+    "base",
+    "docs",
+    "contact",
+    "task",
+    "drive",
+    "wiki",
+    "sheets",
+    "approval",
+    "mail",
+    "okr",
+    "vc",
+    "attendance",
+    "minutes",
+    "slides",
+]
+
+# 按具体命令允许（覆盖域级别）
+# commands = ["lark.drive.list", "lark.drive.download"]
+
+[security.blacklist]
+# 始终禁止的操作模式（优先级最高）
+patterns = ["delete", "remove", "destroy", "batch-delete", "purge"]
+
+# 始终禁止的命令（支持 glob）
+commands = ["lark.admin.*"]
