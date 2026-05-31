@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "源码变更同步文档",
+  "description": "当 src/ 下的 Python 源码被编辑时，自动提醒检查并同步更新 docs/ 中的相关文档",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/**/*.py"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "源码文件已变更。请检查本次修改是否影响 docs/ 中的文档（如 API_SPEC.md、PROJECT_DESIGN.md、DEPLOYMENT.md、TESTING.md 等）。如果有影响，请同步更新相关文档，使用中文编写。"
+  }
+}

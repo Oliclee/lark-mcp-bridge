@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "lark-mcp-bridge"
+version = "0.1.0"
+description = "飞书 CLI → MCP Bridge：将 lark-cli 能力以 MCP tools 形式暴露给 AI Agent"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+authors = [
+    { name = "loveseal" },
+]
+
+dependencies = [
+    "mcp>=1.27",
+    "pydantic-settings>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "pytest-asyncio>=0.23",
+]
+
+[project.scripts]
+lark-mcp-bridge = "lark_mcp_bridge.server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lark_mcp_bridge"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["lark_mcp_bridge"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
