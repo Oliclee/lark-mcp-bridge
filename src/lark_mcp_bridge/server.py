@@ -130,7 +130,7 @@ def _check_permission(tool_name: str) -> str | None:
 
 @mcp.tool(
     name="lark.im.messages-send",
-    description="发送消息到指定会话或用户。支持 text、markdown、post、image 等消息类型。chat_id 和 user_id 二选一。",
+    description="发送消息到指定会话或用户。支持 text、markdown、post、image 等消息类型。chat_id 和 user_id 二选一。[user/bot 身份均可]",
 )
 def im_messages_send(
     text: str,
@@ -170,7 +170,7 @@ def im_messages_send(
 
 @mcp.tool(
     name="lark.calendar.agenda",
-    description="查看日历日程，默认展示今天的安排。可指定日期范围。",
+    description="查看日历日程，默认展示今天的安排。可指定日期范围。[需要 user 身份]",
 )
 def calendar_agenda(
     start_time: str | None = None,
@@ -198,7 +198,7 @@ def calendar_agenda(
 
 @mcp.tool(
     name="lark.base.record-search",
-    description="搜索多维表格记录。根据关键词在指定表格中搜索。",
+    description="搜索多维表格记录。根据关键词在指定表格中搜索。[user/bot 身份均可]",
 )
 def base_record_search(
     base_token: str,
@@ -243,7 +243,7 @@ def base_record_search(
 
 @mcp.tool(
     name="lark.docs.fetch",
-    description="读取飞书文档内容。支持通过文档 URL 或 token 获取。",
+    description="读取飞书文档内容。支持通过文档 URL 或 token 获取。[需要 user 身份]",
 )
 def docs_fetch(
     doc: str,
@@ -270,7 +270,7 @@ def docs_fetch(
 
 @mcp.tool(
     name="lark.contact.search-user",
-    description="搜索飞书联系人。支持按姓名、邮箱等关键词搜索用户。",
+    description="搜索飞书联系人。支持按姓名、邮箱等关键词搜索用户。[需要 user 身份]",
 )
 def contact_search_user(
     query: str,
@@ -358,9 +358,14 @@ def lark_discover(
             {
                 "name": t.name,
                 "cli_command": t.cli_command,
-                "description": t.description,
+                "description": t.description + (
+                    " ⚠️ 高风险操作，需确认" if t.danger else ""
+                ) + (
+                    f" [需要 {t.required_identity} 身份]" if t.required_identity != "both" else ""
+                ),
                 "risk_level": t.risk_level,
                 "required_identity": t.required_identity,
+                "danger": t.danger,
             }
             for t in domain_tools
         ],
@@ -375,7 +380,7 @@ def lark_discover(
 
 @mcp.tool(
     name="lark.calendar.schedule-meeting",
-    description="预约会议（完整流程）：自动检查参会人空闲时间、可选查找会议室、创建日程并邀请参会人。内部编排多步操作，只返回最终结果。",
+    description="预约会议（完整流程）：自动检查参会人空闲时间、可选查找会议室、创建日程并邀请参会人。内部编排多步操作，只返回最终结果。[需要 user 身份]",
 )
 def calendar_schedule_meeting(
     title: str,

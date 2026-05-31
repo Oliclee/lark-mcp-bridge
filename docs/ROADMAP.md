@@ -82,9 +82,9 @@
 
 - [x] 高频 tool 覆写 description（中文 + example）
 - [x] 结构化错误信息（区分 auth error / network error / logic error）
-- [ ] 高风险操作二次确认标记（MCP annotation `destructiveHint`）
+- [x] 高风险操作标记（discover 返回中标注 danger + ⚠️ 提示）
 - [x] `audit.py`：审计日志（参见 [SECURITY §3](./SECURITY.md#3-审计日志)）
-- [ ] Identity 精细化标记（tool description 中声明所需身份）
+- [x] Identity 精细化标记（tool description 中声明所需身份 `[需要 user 身份]`）
 
 ## Phase 3.5: 用户反馈循环 ✅
 
