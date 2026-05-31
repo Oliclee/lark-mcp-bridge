@@ -1,11 +1,11 @@
 {
   "enabled": true,
   "name": "源码变更同步文档",
-  "description": "当写文件 tool 执行后，提醒检查是否需要同步更新 docs/",
+  "description": "当文件写入 tool 执行后，提醒检查是否需要同步更新 docs/",
   "version": "1",
   "when": {
     "type": "postToolUse",
-    "toolTypes": "write"
+    "toolTypes": "fs_write,str_replace"
   },
   "then": {
     "type": "askAgent",
