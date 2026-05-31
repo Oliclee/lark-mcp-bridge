@@ -19,6 +19,30 @@ mcp = FastMCP(
 )
 
 
+# === MCP Resources ===
+
+
+@mcp.resource("lark://identity")
+def resource_identity() -> str:
+    """当前登录身份信息。"""
+    from lark_mcp_bridge.resources import get_identity
+    return json.dumps(get_identity(), ensure_ascii=False, indent=2)
+
+
+@mcp.resource("lark://permissions")
+def resource_permissions() -> str:
+    """已授权的 scope 列表。"""
+    from lark_mcp_bridge.resources import get_permissions
+    return json.dumps(get_permissions(), ensure_ascii=False, indent=2)
+
+
+@mcp.resource("lark://domains")
+def resource_domains() -> str:
+    """可用域概览。"""
+    from lark_mcp_bridge.resources import get_domains_summary
+    return json.dumps(get_domains_summary(), ensure_ascii=False, indent=2)
+
+
 # === Prompt 注册 ===
 
 _PROMPTS_DIR = Path(__file__).parent / "prompts"

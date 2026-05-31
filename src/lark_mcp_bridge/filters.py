@@ -25,10 +25,14 @@ class FilterConfig:
     blacklist_commands: list[str] = field(default_factory=lambda: ["lark.admin.*"])
 
 
-# Phase 1 默认配置：允许 5 个 MVP 域
+# Phase 1 默认配置：允许常用域
 _DEFAULT_CONFIG = FilterConfig(
     default_policy="deny",
-    whitelist_domains=["im", "calendar", "base", "docs", "contact"],
+    whitelist_domains=[
+        "im", "calendar", "base", "docs", "contact",
+        "task", "drive", "wiki", "sheets", "approval",
+        "mail", "okr", "vc", "attendance", "minutes", "slides",
+    ],
     blacklist_patterns=["delete", "remove", "destroy", "batch-delete", "purge"],
     blacklist_commands=["lark.admin.*"],
 )

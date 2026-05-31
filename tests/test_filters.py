@@ -7,10 +7,14 @@ from lark_mcp_bridge.filters import FilterConfig, get_risk_level, is_allowed
 
 @pytest.fixture
 def default_config():
-    """默认过滤配置（Phase 1 MVP）。"""
+    """默认过滤配置。"""
     return FilterConfig(
         default_policy="deny",
-        whitelist_domains=["im", "calendar", "base", "docs", "contact"],
+        whitelist_domains=[
+            "im", "calendar", "base", "docs", "contact",
+            "task", "drive", "wiki", "sheets", "approval",
+            "mail", "okr", "vc", "attendance", "minutes", "slides",
+        ],
         blacklist_patterns=["delete", "remove", "destroy", "batch-delete", "purge"],
         blacklist_commands=["lark.admin.*"],
     )
@@ -30,8 +34,7 @@ class TestIsAllowed:
     def test_non_whitelist_domain_denied(self, default_config):
         """非白名单域的命令被拒绝。"""
         assert is_allowed("lark.admin.users-list", default_config) is False
-        assert is_allowed("lark.approval.create", default_config) is False
-        assert is_allowed("lark.wiki.get", default_config) is False
+        assert is_allowed("lark.unknown.something", default_config) is False
 
     def test_blacklist_pattern_overrides_whitelist(self, default_config):
         """黑名单模式优先于白名单。"""
