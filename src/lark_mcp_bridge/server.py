@@ -625,6 +625,117 @@ def wiki_get_node(
     return _format_result(result)
 
 
+# === Phase 5.1 P2: vc / minutes shortcut tools ===
+
+
+@mcp.tool(
+    name="lark.vc.search",
+    description="搜索会议记录。支持按时间、参会人、关键词过滤。[需要 user 身份]",
+)
+def vc_search(
+    query: str | None = None,
+    start: str | None = None,
+    end: str | None = None,
+    participant_ids: str | None = None,
+    page_size: int = 15,
+) -> str:
+    """搜索会议记录。
+
+    Args:
+        query: 搜索关键词
+        start: 开始时间（ISO 8601 或 YYYY-MM-DD）
+        end: 结束时间（ISO 8601 或 YYYY-MM-DD）
+        participant_ids: 参会人 open_id 列表（逗号分隔）
+        page_size: 每页数量，1-30，默认 15
+    """
+    blocked = _check_permission("lark.vc.search")
+    if blocked:
+        return blocked
+
+    command = ["vc", "+search", "--format", "json", "--page-size", str(page_size)]
+    if query:
+        command.extend(["--query", query])
+    if start:
+        command.extend(["--start", start])
+    if end:
+        command.extend(["--end", end])
+    if participant_ids:
+        command.extend(["--participant-ids", participant_ids])
+
+    result = execute(command)
+    return _format_result(result)
+
+
+@mcp.tool(
+    name="lark.vc.notes",
+    description="获取会议纪要。支持通过会议 ID、妙记 token 或日历事件 ID 查询。[需要 user 身份]",
+)
+def vc_notes(
+    meeting_ids: str | None = None,
+    minute_tokens: str | None = None,
+    calendar_event_ids: str | None = None,
+) -> str:
+    """获取会议纪要。
+
+    Args:
+        meeting_ids: 会议 ID（逗号分隔，批量查询）
+        minute_tokens: 妙记 token（逗号分隔）
+        calendar_event_ids: 日历事件 ID（逗号分隔）
+    """
+    blocked = _check_permission("lark.vc.notes")
+    if blocked:
+        return blocked
+
+    command = ["vc", "+notes", "--format", "json"]
+    if meeting_ids:
+        command.extend(["--meeting-ids", meeting_ids])
+    if minute_tokens:
+        command.extend(["--minute-tokens", minute_tokens])
+    if calendar_event_ids:
+        command.extend(["--calendar-event-ids", calendar_event_ids])
+
+    result = execute(command)
+    return _format_result(result)
+
+
+@mcp.tool(
+    name="lark.minutes.search",
+    description="搜索妙记（会议录音转文字）。支持按关键词、参会人、时间范围过滤。[需要 user 身份]",
+)
+def minutes_search(
+    query: str | None = None,
+    start: str | None = None,
+    end: str | None = None,
+    participant_ids: str | None = None,
+    page_size: int = 15,
+) -> str:
+    """搜索妙记。
+
+    Args:
+        query: 搜索关键词
+        start: 时间下限（ISO 8601 或 YYYY-MM-DD）
+        end: 时间上限（ISO 8601 或 YYYY-MM-DD）
+        participant_ids: 参会人 open_id 列表（逗号分隔，"me" 表示当前用户）
+        page_size: 每页数量，1-30，默认 15
+    """
+    blocked = _check_permission("lark.minutes.search")
+    if blocked:
+        return blocked
+
+    command = ["minutes", "+search", "--format", "json", "--page-size", str(page_size)]
+    if query:
+        command.extend(["--query", query])
+    if start:
+        command.extend(["--start", start])
+    if end:
+        command.extend(["--end", end])
+    if participant_ids:
+        command.extend(["--participant-ids", participant_ids])
+
+    result = execute(command)
+    return _format_result(result)
+
+
 # === Phase 2: 动态发现 + lark.discover meta-tool ===
 
 # 启动时加载所有 tool 定义（用于 discover 查询）
