@@ -418,6 +418,8 @@ def calendar_schedule_meeting(
 
 def main() -> None:
     """启动 MCP server（stdio transport）。"""
+    from lark_mcp_bridge.startup import run_startup
+    run_startup()
     mcp.run(transport="stdio")
 
 
