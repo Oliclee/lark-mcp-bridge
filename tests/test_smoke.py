@@ -8,7 +8,7 @@ def test_import():
     """验证 lark_mcp_bridge 包可导入且版本号存在。"""
     import lark_mcp_bridge
 
-    assert lark_mcp_bridge.__version__ == "0.1.0"
+    assert lark_mcp_bridge.__version__ == "0.2.0"
 
 
 def test_entry_point_exists():
