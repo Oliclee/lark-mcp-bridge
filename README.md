@@ -47,15 +47,23 @@ pip install -e ".[dev]"
 
 ## 使用
 
-### 启动 Server
-
-```bash
-python -m lark_mcp_bridge.server
-```
-
 ### MCP 客户端配置
 
-所有客户端的配置本质相同：
+配置后 Agent 会自动启动 server，无需手动运行。
+
+**推荐配置（pip install 后可用）：**
+
+```json
+{
+  "mcpServers": {
+    "lark": {
+      "command": "lark-mcp-bridge"
+    }
+  }
+}
+```
+
+**或使用 Python 模块方式：**
 
 ```json
 {
@@ -68,10 +76,21 @@ python -m lark_mcp_bridge.server
 }
 ```
 
+各客户端配置位置：
 - **Amazon Quick Desktop**: Settings → Capabilities → MCP → Add Local
 - **Claude Code / Claude Desktop**: `~/.claude/mcp.json`
 - **Cursor**: Settings → MCP Servers → Add (type: command)
 - **opencode**: `opencode.json`
+- **Codex**: `~/.codex/config.toml`
+
+Codex 使用 TOML 格式：
+
+```toml
+[mcp_servers.lark]
+command = "python"
+args = ["-m", "lark_mcp_bridge.server"]
+```
+
 
 ## 工作原理
 
