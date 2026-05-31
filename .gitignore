@@ -33,3 +33,13 @@ coverage.xml
 # Environment
 .env
 .env.local
+
+# Kiro (local IDE config)
+.kiro/
+
+# Runtime config (use .example as template)
+lark-mcp-bridge.toml
+
+# Logs
+*.log
+logs/
