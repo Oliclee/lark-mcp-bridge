@@ -346,7 +346,18 @@ lark-cli 有 `--as user`（用户身份）和 `--as bot`（应用身份）两种
 
 #### 子进程执行模型
 
-**当前方案（Phase 1-2）**：每次 tool call 独立 `subprocess.run()`，简单可靠。
+**当前方案：每次 tool call 独立 `subprocess.run()`**，简单可靠。
+
+**Phase 2.5 基准测量结论（2026-05-31）**：进程池不需要。
+
+| 指标 | 结果 | 说明 |
+|------|------|------|
+| subprocess 冷启动 | 54ms | 极低，进程池收益可忽略 |
+| Tool call P50/P95 | 691ms / 731ms | 瓶颈在飞书 API 网络 I/O |
+| Discovery 无缓存 | 117ms | 可接受 |
+| Discovery 有缓存 | 4ms | 29x 加速 |
+
+原设计中的进程池模式（`LARK_MCP_POOL_SIZE`）降级为可选优化，当前不实现。
 
 **优化方案（Phase 4+）**：进程池模式，减少冷启动开销。
 
