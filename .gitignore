@@ -43,3 +43,6 @@ lark-mcp-bridge.toml
 # Logs
 *.log
 logs/
+
+# Internal docs (not for public)
+docs/

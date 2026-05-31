@@ -119,3 +119,38 @@
 - [x] CI（GitHub Actions: lint + test）
 - [x] `lark-mcp-bridge.toml` 配置文件模板
 - [ ] `scripts/sync_prompts.py` Prompt 同步脚本（推迟：当前手工维护）
+
+## Phase 5.1: Shortcut 扩展
+
+**目标**：对齐 lark-cli 官方 20 个 AI Agent Skill 的域覆盖，补齐缺失的 shortcut tool
+
+**背景**：lark-cli 提供 20 个结构化 Skill（涵盖 sheets、task、mail、drive、wiki、vc、whiteboard、minutes、event 等域），当前 bridge 仅手工注册了 5 个高频 shortcut。其余域虽可通过 `lark.discover` → API Command 层访问，但缺少简洁参数的 shortcut 体验。
+
+**P0（高频域）**：
+- [ ] `lark.sheets.read` — 读取电子表格数据
+- [ ] `lark.sheets.write` — 写入电子表格数据
+- [ ] `lark.task.list` — 查看任务列表
+- [ ] `lark.task.create` — 创建任务
+- [ ] `lark.mail.send` — 发送邮件
+- [ ] `lark.mail.list` — 查看邮件列表
+
+**P1（常用域）**：
+- [ ] `lark.drive.upload` — 上传文件
+- [ ] `lark.drive.download` — 下载文件
+- [ ] `lark.wiki.search` — 搜索知识库
+- [ ] `lark.wiki.get-node` — 获取知识库节点
+
+**P2（低频域）**：
+- [ ] `lark.vc.search` — 搜索会议记录
+- [ ] `lark.vc.notes` — 获取会议纪要
+- [ ] `lark.whiteboard.render` — 渲染画板
+- [ ] `lark.minutes.get` — 获取会议纪要详情
+- [ ] `lark.event.subscribe` — 事件订阅（需评估 MCP 兼容性）
+
+**实现方式**：参考现有 shortcut 注册模式（`server.py` 手工注册 → `executor.py` 执行）。
+
+**验收标准**：
+- 每个 shortcut 在 Quick 中可调用
+- 有对应单元测试
+- `docs/API_SPEC.md` 同步更新
+- README 工具表格同步更新

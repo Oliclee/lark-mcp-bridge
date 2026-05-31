@@ -19,7 +19,19 @@
 
 ## 当前状态
 
-预实现阶段（设计/文档阶段）。源代码尚未编写。项目处于 Roadmap 的 Phase 0。
+Phase 4（生产化）已完成。Phase 5（发布）进行中。
+
+已实现：5 个手工 shortcut tool + 1 个 composite tool + discover 元工具 + 动态发现（219 API）+ 白名单安全 + 结构化错误 + 审计日志 + 启动预检。
+
+## 下一迭代：Shortcut 扩展（Phase 5.1）
+
+**目标**：对齐 lark-cli 官方 20 个 AI Agent Skill 的覆盖域，补齐缺失的 9 个域的 shortcut tool，提升开箱体验。
+
+**原则**：
+- 每个新 shortcut 对应 lark-cli 的一个 `+shortcut` 命令
+- 遵循现有命名规范：`lark.{domain}.{action}`
+- 需实际测试 lark-cli 对应命令的输出格式兼容性
+- 完成后同步更新 `docs/API_SPEC.md` 和 README 工具表格
 
 ## 目标部署方式
 

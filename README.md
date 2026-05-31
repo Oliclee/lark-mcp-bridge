@@ -1,111 +1,117 @@
 # lark-mcp-bridge
 
-飞书 CLI → MCP Bridge：将 [lark-cli](https://github.com/larksuite/cli) 能力以 MCP tools 形式暴露给 AI Agent。
+将 [lark-cli](https://github.com/larksuite/cli)（飞书/Lark 官方 CLI）封装为 [MCP](https://modelcontextprotocol.io/) Server，使 AI 助手能够操作飞书。
 
-## 功能
+支持飞书（中国版）和 Lark（国际版），取决于 lark-cli 配置。当前仅在飞书环境下验证。
 
-- **5 个手工 shortcut tool**：消息发送、日程查询、多维表格搜索、文档读取、联系人搜索
-- **1 个复合 tool**：预约会议（查空闲 → 找会议室 → 创建日程）
-- **动态发现**：自动解析 lark-cli 219 个 API 操作，按需暴露
-- **渐进式暴露**：默认只暴露精选 tool，Agent 通过 `lark.discover` 按域查询更多
-- **安全过滤**：白名单/黑名单机制，破坏性操作自动拦截
-- **结构化错误**：每个错误包含 recovery_hint，告诉 Agent 如何修复
-- **审计日志**：可选记录所有 tool 调用（支持脱敏）
+## 背景
 
-## 快速开始
+AI 工作助手（如 Amazon Quick、Claude Desktop、Anthropic Coworker）出于安全设计，不能直接执行 shell 命令或调用外部 API。它们通过 MCP 协议扩展能力——MCP 是这类助手连接外部服务的唯一通道。本项目让这类助手能够操作飞书。
 
-### 前置条件
+对于有终端权限的编码工具（Claude Code、Cursor 等），同样可以通过 MCP 获得结构化的飞书操作能力，无需自行解析 CLI 输出。
+
+## 特点
+
+- **无需创建飞书应用** — 复用 lark-cli 的个人登录态，无需 App ID/Secret
+- **14 个域、219 个 API** — 通过 `lark.discover` 元工具让 Agent 按需探索，不受固定工具列表限制
+- **安全白名单** — 默认拒绝未审核操作，风险分级，破坏性操作需确认
+- **结构化交互** — 每个操作提供完整 JSON Schema（参数名、类型、枚举、必填），Agent 不需要猜参数
+- **统一错误处理** — 分类错误码（认证过期、限流、权限不足…）+ 中文恢复建议，而非裸 stderr
+- **上下文友好** — schema 按需加载，不会一次性灌入大量 help 文本占用 Agent 上下文窗口
+- **标准 MCP 协议** — 兼容任何 MCP 客户端（Amazon Quick、Claude、Cursor、opencode 等）
+
+## 前置条件
 
 - Python 3.12+
-- [lark-cli](https://github.com/larksuite/cli) >= 1.0.43 已安装并完成认证
-- [uv](https://docs.astral.sh/uv/) 已安装
+- [lark-cli](https://github.com/larksuite/cli) 已安装并完成登录（`lark-cli auth login`）
 
-### 安装
+## 安装
 
 ```bash
-git clone https://github.com/loveseal/lark-mcp-bridge.git
+pip install lark-mcp-bridge
+
+# 或开发模式
+git clone https://github.com/YOUR_USERNAME/lark-mcp-bridge.git
 cd lark-mcp-bridge
-conda create -n lark-mcp-bridge python=3.12 -y
-uv pip install --python /path/to/envs/lark-mcp-bridge/bin/python -e ".[dev]"
+pip install -e ".[dev]"
 ```
 
-### 验证
+## 使用
+
+### 启动 Server
 
 ```bash
-conda run -n lark-mcp-bridge pytest
-conda run -n lark-mcp-bridge lark-mcp-bridge  # Ctrl+C 退出
+python -m lark_mcp_bridge.server
 ```
 
-### 在 Amazon Quick Desktop 中使用
+### MCP 客户端配置
 
-Settings → Capabilities → MCP → + Add MCP → Local：
+所有客户端的配置本质相同：
 
-| 字段 | 值 |
-|------|-----|
-| Command | `/path/to/envs/lark-mcp-bridge/bin/python` |
-| Arguments | `-m lark_mcp_bridge.server` |
+```json
+{
+  "mcpServers": {
+    "lark": {
+      "command": "python",
+      "args": ["-m", "lark_mcp_bridge.server"]
+    }
+  }
+}
+```
 
-## 可用 Tool
+- **Amazon Quick Desktop**: Settings → Capabilities → MCP → Add Local
+- **Claude Code / Claude Desktop**: `~/.claude/mcp.json`
+- **Cursor**: Settings → MCP Servers → Add (type: command)
+- **opencode**: `opencode.json`
 
-| Tool | 描述 |
+## 工作原理
+
+```
+AI 客户端 ⇄ MCP (stdio) ⇄ lark-mcp-bridge ⇄ lark-cli ⇄ 飞书 API
+```
+
+bridge 不直接调用飞书 HTTP API。认证和 token 管理由 lark-cli 处理，你的 credential 不经过第三方。
+
+### 内置工具
+
+| 工具 | 功能 |
 |------|------|
-| `lark.im.messages-send` | 发送消息（text/markdown，支持 chat_id 或 user_id） |
-| `lark.calendar.agenda` | 查看日历日程 |
-| `lark.calendar.schedule-meeting` | 预约会议（复合 tool，自动编排多步） |
-| `lark.base.record-search` | 搜索多维表格记录 |
-| `lark.docs.fetch` | 读取飞书文档 |
+| `lark.im.messages-send` | 发送消息 |
+| `lark.calendar.agenda` | 查看日程 |
+| `lark.calendar.schedule-meeting` | 预约会议 |
+| `lark.base.record-search` | 搜索多维表格 |
+| `lark.docs.fetch` | 读取文档 |
 | `lark.contact.search-user` | 搜索联系人 |
-| `lark.discover` | 按域查询所有可用 API 操作 |
+| `lark.discover` | 探索任意域的可用操作 |
 | `lark.identity` | 查看当前登录身份 |
 | `lark.permissions` | 查看已授权 scope |
-| `lark.domains` | 查看可用域概览 |
+| `lark.domains` | 查看所有可用域 |
 
-## 配置
+### 动态发现
 
-通过环境变量配置（前缀 `LARK_MCP_`）：
-
-| 变量 | 默认值 | 说明 |
-|------|--------|------|
-| `LARK_MCP_TIMEOUT` | `30` | 子进程超时秒数 |
-| `LARK_MCP_LOG_LEVEL` | `INFO` | 日志级别 |
-| `LARK_MCP_LOG_FORMAT` | `json` | 日志格式（json/text） |
-| `LARK_MCP_AUDIT_LOG` | (disabled) | 审计日志路径 |
-| `LARK_MCP_NO_CACHE` | `false` | 禁用 discovery 缓存 |
-
-完整配置见 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)。
-
-安全策略配置见 [lark-mcp-bridge.toml.example](lark-mcp-bridge.toml.example)。
-
-## 架构
-
-```
-Amazon Quick → stdio → lark-mcp-bridge → subprocess → lark-cli → 飞书 API
-```
-
-四层架构：
-- **L1 原子 tool**：自动从 lark-cli schema 生成
-- **L2 复合 tool**：手工编排多步工作流
-- **L3 Prompt**：领域知识按需注入
-- **L4 智能引导**：description + examples + hints
-
-详细设计见 [docs/PROJECT_DESIGN.md](docs/PROJECT_DESIGN.md)。
+当内置工具不满足需求时，Agent 可调用 `lark.discover(domain="mail")` 查询该域下所有可用 API 的完整 schema（参数、类型、示例），然后直接调用——无需更新 bridge 版本。
 
 ## 开发
 
 ```bash
-# 运行测试
-conda run -n lark-mcp-bridge pytest
-
-# 运行测试（含覆盖率）
-conda run -n lark-mcp-bridge pytest --cov=lark_mcp_bridge
-
-# 性能基准
-conda run -n lark-mcp-bridge python scripts/benchmark.py
-
-# 审计日志分析
-conda run -n lark-mcp-bridge python scripts/analyze_audit.py
+pip install -e ".[dev]"
+pytest
 ```
+
+详细设计文档见 [docs/INDEX.md](docs/INDEX.md)。
+
+## 免责声明
+
+本项目为社区开源项目，与飞书/Lark 及字节跳动无官方关联。"Lark"和"飞书"是字节跳动的注册商标。
+
+**关于安全防护**：本项目内置了白名单策略、风险分级和破坏性操作确认机制，尽力防止误操作。但 AI 助手的行为由模型推理驱动，无法保证 100% 符合用户预期。使用者应：
+
+- 对 AI 助手执行的写入、修改和删除操作保持关注
+- 在重要环境中使用前，先在测试环境验证
+- 理解本工具以用户自身身份执行操作，后果等同于用户本人操作
+
+使用本工具即表示你理解并接受：项目作者不对因使用本工具导致的任何数据丢失、误操作或其他损害承担责任。使用时请遵守[飞书开放平台使用条款](https://open.feishu.cn/document/common-capabilities/terms-of-service)。
 
 ## 许可证
 
-[MIT](LICENSE)
+MIT
