@@ -1,16 +1,14 @@
 {
   "enabled": true,
   "name": "源码变更同步文档",
-  "description": "当 src/ 下的 Python 源码被编辑时，自动提醒检查并同步更新 docs/ 中的相关文档",
+  "description": "当写文件 tool 执行后，提醒检查是否需要同步更新 docs/",
   "version": "1",
   "when": {
-    "type": "fileEdited",
-    "patterns": [
-      "src/**/*.py"
-    ]
+    "type": "postToolUse",
+    "toolTypes": "write"
   },
   "then": {
     "type": "askAgent",
-    "prompt": "源码文件已变更。请检查本次修改是否影响 docs/ 中的文档（如 API_SPEC.md、PROJECT_DESIGN.md、DEPLOYMENT.md、TESTING.md 等）。如果有影响，请同步更新相关文档，使用中文编写。"
+    "prompt": "检查刚才写入的文件路径。仅当修改的是 src/lark_mcp_bridge/ 下的 .py 文件（新增模块、修改接口、变更行为）时，才需要检查 docs/ 是否需要同步更新。对于以下情况直接跳过，不做任何操作：修改测试文件、修改文档本身、修改配置文件、修改 .kiro/ 下的文件。"
   }
 }
