@@ -271,12 +271,18 @@ Agent 收到飞书相关请求 → list_prompts() → 发现相关 prompt
 
 MCP Resources 暴露只读上下文信息，帮助 Agent 感知当前环境：
 
-| Resource URI | 内容 | 用途 |
-|---|---|---|
-| `lark://identity` | 当前登录身份（user/bot）、用户名、邮箱 | Agent 判断可执行哪些操作 |
-| `lark://permissions` | 当前飞书应用已授权的 scope 列表 | Agent 避免调用无权限的 API |
-| `lark://domains` | 已注册的域列表及各域 tool 数量 | Agent 了解可用能力范围 |
-| `lark://config` | bridge 运行配置摘要（过滤策略、超时等） | 调试用 |
+| Resource URI | 内容 | 用途 | 实现状态 |
+|---|---|---|---|
+| `lark://identity` | 当前登录身份（user/bot）、用户名、open_id | Agent 判断可执行哪些操作 | ✅ 已实现 |
+| `lark://permissions` | 当前飞书应用已授权的 scope 列表 | Agent 避免调用无权限的 API | ✅ 已实现 |
+| `lark://domains` | 已注册的域列表及各域 tool 数量 | Agent 了解可用能力范围 | ✅ 已实现 |
+| `lark://config` | bridge 运行配置摘要（过滤策略、超时等） | 调试用 | 计划中 |
+
+**实现特点**：
+- 所有 resource 函数通过 `lark-cli auth status` 获取数据（超时 10s）
+- 错误时不抛异常，返回包含 `error` 字段的降级响应
+- 接受可选 `settings: BridgeSettings` 参数，便于测试注入
+- `get_domains_summary()` 内部复用 `discovery.discover_tools()` + `get_tools_by_domain()`
 
 ### 2.6 Identity（身份）处理
 

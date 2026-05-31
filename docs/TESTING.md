@@ -156,7 +156,23 @@ lark-cli calendar --help > tests/fixtures/help/calendar_help.txt
 | freebusy 失败 | execute 返回 E_AUTH_EXPIRED | 返回失败 + recovery_hint 提示手动指定时间 |
 | create 失败 | execute 返回 E_PERMISSION_DENIED | 透传错误结果 |
 
-### 3.5 server.py（集成测试）
+### 3.5 resources.py
+
+| 测试点 | 输入 | 预期输出 |
+|---|---|---|
+| 正常身份信息 | auth status 返回完整 JSON | 提取 app_id、brand、user/bot 信息 |
+| CLI 不存在 | FileNotFoundError | `{"error": ..., "status": "unavailable"}` |
+| CLI 超时 | subprocess.TimeoutExpired | `{"error": ..., "status": "unavailable"}` |
+| auth status 失败 | exit code ≠ 0 | `{"error": ..., "status": "unavailable"}` |
+| 输出非 JSON | stdout 为非法 JSON | `{"error": ..., "status": "unavailable"}` |
+| 正常权限列表 | scope 字段含多个空格分隔值 | scopes 数组 + total 计数 |
+| 无 scope | user identity 无 scope 字段 | `{"scopes": [], "total": 0}` |
+| 域概览正常 | discover_tools 返回多个 tool | domains 列表 + total_tools + total_domains |
+| 域概览异常 | discover_tools 抛异常 | `{"domains": [], "error": "..."}` |
+
+**Mock 策略**：直接 mock `subprocess.run`（`get_identity` / `get_permissions`）或 mock `discovery.discover_tools`（`get_domains_summary`）。
+
+### 3.6 server.py（集成测试）
 
 | 测试点 | 输入 | 预期输出 |
 |---|---|---|

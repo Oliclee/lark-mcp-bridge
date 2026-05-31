@@ -20,6 +20,8 @@ mcp = FastMCP(
 
 
 # === MCP Resources ===
+# 注：Quick 目前不消费 MCP Resources，保留注册以备未来兼容。
+# 同时提供等价的 tool 供 Agent 调用。
 
 
 @mcp.resource("lark://identity")
@@ -39,6 +41,39 @@ def resource_permissions() -> str:
 @mcp.resource("lark://domains")
 def resource_domains() -> str:
     """可用域概览。"""
+    from lark_mcp_bridge.resources import get_domains_summary
+    return json.dumps(get_domains_summary(), ensure_ascii=False, indent=2)
+
+
+# === Resources as Tools（Quick 兼容） ===
+
+
+@mcp.tool(
+    name="lark.identity",
+    description="查看当前飞书登录身份（用户/机器人）、状态、open_id 等信息。",
+)
+def tool_identity() -> str:
+    """获取当前身份信息。"""
+    from lark_mcp_bridge.resources import get_identity
+    return json.dumps(get_identity(), ensure_ascii=False, indent=2)
+
+
+@mcp.tool(
+    name="lark.permissions",
+    description="查看当前飞书应用已授权的 scope 列表。用于判断哪些操作可执行。",
+)
+def tool_permissions() -> str:
+    """获取已授权权限列表。"""
+    from lark_mcp_bridge.resources import get_permissions
+    return json.dumps(get_permissions(), ensure_ascii=False, indent=2)
+
+
+@mcp.tool(
+    name="lark.domains",
+    description="查看所有可用的飞书域及各域 tool 数量概览。",
+)
+def tool_domains() -> str:
+    """获取域概览。"""
     from lark_mcp_bridge.resources import get_domains_summary
     return json.dumps(get_domains_summary(), ensure_ascii=False, indent=2)
 

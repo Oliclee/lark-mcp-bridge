@@ -296,9 +296,63 @@ Tool 使用 MCP annotation 标记风险级别和属性：
 
 bridge 通过 MCP Resources 暴露只读上下文信息：
 
-| Resource URI | 描述 | 返回示例 |
+| Resource URI | 描述 | 实现函数 |
 |---|---|---|
-| `lark://identity` | 当前登录身份 | `{"type": "user", "name": "张三", "email": "zhang.san@co.com"}` |
-| `lark://permissions` | 已授权 scope | `{"scopes": ["im:message", "calendar:event", "contact:user.base"]}` |
-| `lark://domains` | 可用域概览 | `{"domains": [{"name": "im", "tool_count": 8}, ...]}` |
-| `lark://config` | bridge 运行配置 | `{"filter_policy": "whitelist", "timeout": 30, "pool_size": 0, "transport": "stdio"}` |
+| `lark://identity` | 当前登录身份 | `resources.get_identity()` |
+| `lark://permissions` | 已授权 scope | `resources.get_permissions()` |
+| `lark://domains` | 可用域概览 | `resources.get_domains_summary()` |
+| `lark://config` | bridge 运行配置 | （计划中） |
+
+### `lark://identity` 返回结构
+
+```json
+{
+  "app_id": "cli_abc123",
+  "brand": "feishu",
+  "default_as": "auto",
+  "current_identity": "user",
+  "user": {
+    "status": "ready",
+    "available": true,
+    "name": "张三",
+    "open_id": "ou_xxx"
+  },
+  "bot": {
+    "status": "ready",
+    "available": true
+  }
+}
+```
+
+不可用时返回：`{"error": "无法获取身份信息", "status": "unavailable"}`
+
+### `lark://permissions` 返回结构
+
+```json
+{
+  "scopes": ["im:message", "calendar:event:create", "contact:user.base:readonly"],
+  "total": 3
+}
+```
+
+不可用时返回：`{"scopes": [], "error": "无法获取权限信息"}`
+
+### `lark://domains` 返回结构
+
+```json
+{
+  "domains": [
+    {"name": "calendar", "tool_count": 5},
+    {"name": "im", "tool_count": 8}
+  ],
+  "total_tools": 13,
+  "total_domains": 2
+}
+```
+
+### 实现说明
+
+- `get_identity()` 和 `get_permissions()` 内部调用 `lark-cli auth status`（超时 10s）
+- `get_domains_summary()` 内部调用 `discovery.discover_tools()` + `get_tools_by_domain()`
+- 所有函数接受可选 `settings: BridgeSettings` 参数，默认使用全局配置
+- 错误时不抛异常，返回包含 `error` 字段的降级响应
